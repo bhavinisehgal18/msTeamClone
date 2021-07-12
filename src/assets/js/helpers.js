@@ -5,21 +5,15 @@ export default {
         
         return crypto.getRandomValues(array);
     },
-
-
     closeVideo( elemId ) {
         if ( document.getElementById( elemId ) ) {
             document.getElementById( elemId ).remove();
             this.adjustVideoElemSize();
         }
     },
-
-
     pageHasFocus() {
         return !( document.hidden || document.onfocusout || window.onpagehide || window.onblur );
     },
-
-
     getQString( url = '', keyToReturn = '' ) {
         url = url ? url : location.href;
         let queryStrings = decodeURIComponent( url ).split( '#', 2 )[0].split( '?', 2 )[1];
@@ -46,13 +40,9 @@ export default {
 
         return null;
     },
-
-
     userMediaAvailable() {
         return !!( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia );
     },
-
-
     getUserFullMedia() {
         if ( this.userMediaAvailable() ) {
             return navigator.mediaDevices.getUserMedia( {
@@ -63,13 +53,10 @@ export default {
                 }
             } );
         }
-
         else {
-            throw new Error( 'User media not available' );
+            throw new Error( 'User not available' );
         }
     },
-
-
     getUserAudio() {
         if ( this.userMediaAvailable() ) {
             return navigator.mediaDevices.getUserMedia( {
@@ -81,12 +68,9 @@ export default {
         }
 
         else {
-            throw new Error( 'User media not available' );
+            throw new Error( 'User not available' );
         }
     },
-
-
-
     shareScreen() {
         if ( this.userMediaAvailable() ) {
             return navigator.mediaDevices.getDisplayMedia( {
@@ -100,13 +84,10 @@ export default {
                 }
             } );
         }
-
         else {
-            throw new Error( 'User media not available' );
+            throw new Error( 'User not available' );
         }
     },
-
-
     getIceServer() {
         return {
             iceServers: [
@@ -124,8 +105,6 @@ export default {
             ]
         };
     },
-
-
     addChat( data, senderType ) {
         let chatMsgDiv = document.querySelector( '#chat-messages' );
         let contentAlign = 'justify-content-end';
@@ -157,17 +136,10 @@ export default {
 
         chatMsgDiv.appendChild( rowDiv );
 
-        /**
-         * Move focus to the newly added message but only if:
-         * 1. Page has focus
-         * 2. User has not moved scrollbar upward. This is to prevent moving the scroll position if user is reading previous messages.
-         */
         if ( this.pageHasFocus ) {
             rowDiv.scrollIntoView();
         }
     },
-
-
     toggleChatNotificationBadge() {
         if ( document.querySelector( '#chat-pane' ).classList.contains( 'chat-opened' ) ) {
             document.querySelector( '#new-chat-notification' ).setAttribute( 'hidden', true );
@@ -177,17 +149,11 @@ export default {
             document.querySelector( '#new-chat-notification' ).removeAttribute( 'hidden' );
         }
     },
-
-
-
     replaceTrack( stream, recipientPeer ) {
         let sender = recipientPeer.getSenders ? recipientPeer.getSenders().find( s => s.track && s.track.kind === stream.kind ) : false;
 
         sender ? sender.replaceTrack( stream ) : '';
     },
-
-
-
     toggleShareIcons( share ) {
         let shareIconElem = document.querySelector( '#share-screen' );
 
@@ -254,17 +220,12 @@ export default {
             el.setAttribute( 'aria-hidden', true );
         }
     },
-
-
-
     setLocalStream( stream, mirrorMode = true ) {
         const localVidElem = document.getElementById( 'local' );
 
         localVidElem.srcObject = stream;
         mirrorMode ? localVidElem.classList.add( 'mirror-mode' ) : localVidElem.classList.remove( 'mirror-mode' );
     },
-
-
     adjustVideoElemSize() {
         let elem = document.getElementsByClassName( 'card' );
         let totalRemoteVideosDesktop = elem.length;
