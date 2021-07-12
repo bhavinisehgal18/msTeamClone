@@ -1,9 +1,4 @@
-/**
- * @author Amir Sanni <amirsanni@gmail.com>
- * @date 6th January, 2020
- */
 import h from './helpers.js';
-
 window.addEventListener( 'load', () => {
     const room = h.getQString( location.href, 'room' );
     const username = sessionStorage.getItem( 'username' );
@@ -15,7 +10,6 @@ window.addEventListener( 'load', () => {
     else if ( !username ) {
         document.querySelector( '#username-set' ).attributes.removeNamedItem( 'hidden' );
     }
-
     else {
         let commElem = document.getElementsByClassName( 'room-comm' );
 
@@ -38,34 +32,23 @@ window.addEventListener( 'load', () => {
 
 
         socket.on( 'connect', () => {
-            //set socketId
             socketId = socket.io.engine.id;
-
-
             socket.emit( 'subscribe', {
                 room: room,
                 socketId: socketId
             } );
-
-
             socket.on( 'new user', ( data ) => {
                 socket.emit( 'newUserStart', { to: data.socketId, sender: socketId } );
                 pc.push( data.socketId );
                 init( true, data.socketId );
             } );
-
-
             socket.on( 'newUserStart', ( data ) => {
                 pc.push( data.sender );
                 init( false, data.sender );
             } );
-
-
             socket.on( 'ice candidates', async ( data ) => {
                 data.candidate ? await pc[data.sender].addIceCandidate( new RTCIceCandidate( data.candidate ) ) : '';
             } );
-
-
             socket.on( 'sdp', async ( data ) => {
                 if ( data.description.type === 'offer' ) {
                     data.description ? await pc[data.sender].setRemoteDescription( new RTCSessionDescription( data.description ) ) : '';
@@ -106,7 +89,6 @@ window.addEventListener( 'load', () => {
 
         function getAndSetUserStream() {
             h.getUserFullMedia().then( ( stream ) => {
-                //save my stream
                 myStream = stream;
 
                 h.setLocalStream( stream );
@@ -122,38 +104,30 @@ window.addEventListener( 'load', () => {
                 msg: msg,
                 sender: username
             };
-
-            //emit chat message
             socket.emit( 'chat', data );
-
-            //add localchat
             h.addChat( data, 'local' );
         }
-
-
-
         function init( createOffer, partnerName ) {
             pc[partnerName] = new RTCPeerConnection( h.getIceServer() );
 
             if ( screen && screen.getTracks().length ) {
                 screen.getTracks().forEach( ( track ) => {
-                    pc[partnerName].addTrack( track, screen );//should trigger negotiationneeded event
+                    pc[partnerName].addTrack( track, screen );
                 } );
             }
 
             else if ( myStream ) {
                 myStream.getTracks().forEach( ( track ) => {
-                    pc[partnerName].addTrack( track, myStream );//should trigger negotiationneeded event
+                    pc[partnerName].addTrack( track, myStream );
                 } );
             }
 
             else {
                 h.getUserFullMedia().then( ( stream ) => {
-                    //save my stream
                     myStream = stream;
 
                     stream.getTracks().forEach( ( track ) => {
-                        pc[partnerName].addTrack( track, stream );//should trigger negotiationneeded event
+                        pc[partnerName].addTrack( track, stream );
                     } );
 
                     h.setLocalStream( stream );
@@ -163,8 +137,6 @@ window.addEventListener( 'load', () => {
             }
 
 
-
-            //create offer
             if ( createOffer ) {
                 pc[partnerName].onnegotiationneeded = async () => {
                     let offer = await pc[partnerName].createOffer();
@@ -175,16 +147,10 @@ window.addEventListener( 'load', () => {
                 };
             }
 
-
-
-            //send ice candidate to partnerNames
             pc[partnerName].onicecandidate = ( { candidate } ) => {
                 socket.emit( 'ice candidates', { candidate: candidate, to: partnerName, sender: socketId } );
             };
 
-
-
-            //add
             pc[partnerName].ontrack = ( e ) => {
                 let str = e.streams[0];
                 if ( document.getElementById( `${ partnerName }-video` ) ) {
@@ -192,34 +158,28 @@ window.addEventListener( 'load', () => {
                 }
 
                 else {
-                    //video elem
                     let newVid = document.createElement( 'video' );
                     newVid.id = `${ partnerName }-video`;
                     newVid.srcObject = str;
                     newVid.autoplay = true;
                     newVid.className = 'remote-video';
 
-                    //video controls elements
                     let controlDiv = document.createElement( 'div' );
                     controlDiv.className = 'remote-video-controls';
                     controlDiv.innerHTML = `<i class="fa fa-microphone text-white pr-3 mute-remote-mic" title="Mute"></i>
                         <i class="fa fa-expand text-white expand-remote-video" title="Expand"></i>`;
 
-                    //create a new div for card
                     let cardDiv = document.createElement( 'div' );
                     cardDiv.className = 'card card-sm';
                     cardDiv.id = partnerName;
                     cardDiv.appendChild( newVid );
                     cardDiv.appendChild( controlDiv );
 
-                    //put div in main-section elem
                     document.getElementById( 'videos' ).appendChild( cardDiv );
 
                     h.adjustVideoElemSize();
                 }
             };
-
-
 
             pc[partnerName].onconnectionstatechange = ( d ) => {
                 switch ( pc[partnerName].iceConnectionState ) {
@@ -234,8 +194,6 @@ window.addEventListener( 'load', () => {
                 }
             };
 
-
-
             pc[partnerName].onsignalingstatechange = ( d ) => {
                 switch ( pc[partnerName].signalingState ) {
                     case 'closed':
@@ -245,18 +203,11 @@ window.addEventListener( 'load', () => {
                 }
             };
         }
-
-
-
         function shareScreen() {
             h.shareScreen().then( ( stream ) => {
                 h.toggleShareIcons( true );
-
-                //disable the video toggle btns while sharing screen. This is to ensure clicking on the btn does not interfere with the screen sharing
-                //It will be enabled was user stopped sharing screen
                 h.toggleVideoBtnDisabled( true );
 
-                //save my screen stream
                 screen = stream;
 
                 //share the new stream with all partners
@@ -415,8 +366,6 @@ window.addEventListener( 'load', () => {
 
             broadcastNewTracks( myStream, 'audio' );
         } );
-
-
         //When user clicks the 'Share screen' button
         document.getElementById( 'share-screen' ).addEventListener( 'click', ( e ) => {
             e.preventDefault();
@@ -427,58 +376,6 @@ window.addEventListener( 'load', () => {
 
             else {
                 shareScreen();
-            }
-        } );
-
-
-        //When record button is clicked
-        document.getElementById( 'record' ).addEventListener( 'click', ( e ) => {
-            /**
-             * Ask user what they want to record.
-             * Get the stream based on selection and start recording
-             */
-            if ( !mediaRecorder || mediaRecorder.state == 'inactive' ) {
-                h.toggleModal( 'recording-options-modal', true );
-            }
-
-            else if ( mediaRecorder.state == 'paused' ) {
-                mediaRecorder.resume();
-            }
-
-            else if ( mediaRecorder.state == 'recording' ) {
-                mediaRecorder.stop();
-            }
-        } );
-
-
-        //When user choose to record screen
-        document.getElementById( 'record-screen' ).addEventListener( 'click', () => {
-            h.toggleModal( 'recording-options-modal', false );
-
-            if ( screen && screen.getVideoTracks().length ) {
-                startRecording( screen );
-            }
-
-            else {
-                h.shareScreen().then( ( screenStream ) => {
-                    startRecording( screenStream );
-                } ).catch( () => { } );
-            }
-        } );
-
-
-        //When user choose to record own video
-        document.getElementById( 'record-video' ).addEventListener( 'click', () => {
-            h.toggleModal( 'recording-options-modal', false );
-
-            if ( myStream && myStream.getTracks().length ) {
-                startRecording( myStream );
-            }
-
-            else {
-                h.getUserFullMedia().then( ( videoStream ) => {
-                    startRecording( videoStream );
-                } ).catch( () => { } );
             }
         } );
     }
