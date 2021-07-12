@@ -1,7 +1,7 @@
 {
-  "name": "livestream-server",
+  "name": "ms-team",
   "version": "1.0.0",
-  "description": "A conference call implementation using WebRTC, Socket.io and Node.js.",
+  "description": "MICROSOFT Engage Project",
   "main": "src/app.js",
   "engines": {
     "node": "14.17.1"
@@ -18,19 +18,6 @@
     "watch": "nodemon --watch \"src/\" --exec \"node src/app.js\"",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start":"node src/app.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/amirsanni/livestream-server.git"
-  },
-  "keywords": [
-    "LiveStream",
-    "Server"
-  ],
-  "author": "Amir Sanni <amirsanni@gmail.com>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/amirsanni/livestream-server/issues"
-  },
-  "homepage": "https://github.com/amirsanni/livestream-server#readme"
+  }
+  
 }
